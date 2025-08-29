@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AI Style Converter</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500;700&family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
+  <script type="importmap">
+{
+  "imports": {
+    "react-dom/": "https://aistudiocdn.com/react-dom@^19.1.1/",
+    "@google/genai": "https://aistudiocdn.com/@google/genai@^1.15.0",
+    "react/": "https://aistudiocdn.com/react@^19.1.1/",
+    "react": "https://aistudiocdn.com/react@^19.1.1"
+  }
+}
+</script>
+<style>
+      :root {
+        --bg-color: #f0f0f0;
+        --text-color: #1a1a1a;
+        --border-color: #d1d1d1;
+        --button-bg: #1a1a1a;
+        --button-text: #f0f0f0;
+        --header-font: 'Roboto Mono', monospace;
+        --body-font: 'Roboto Mono', monospace;
+        --bg-image: none;
+      }
+
+      /* --- Minimalist Theme (Default) --- */
+      body.theme-minimalist {
+        /* This theme uses the root defaults. */
+      }
+
+      /* --- Bio-Mechanical Theme --- */
+      body.theme-bio-mechanical {
+        --bg-color: #0a0e0a;
+        --text-color: #00ff41;
+        --border-color: #008a23;
+        --button-bg: #00ff41;
+        --button-text: #0a0e0a;
+      }
+      .theme-bio-mechanical h1, .theme-bio-mechanical h3 {
+        text-shadow: 0 0 5px var(--text-color);
+      }
+
+      /* --- Cyberpunk Theme --- */
+      body.theme-cyberpunk {
+        --bg-color: #1a0f2b;
+        --text-color: #00f6ff;
+        --border-color: #ff00ff;
+        --button-bg: #ff00ff;
+        --button-text: #1a0f2b;
+        --header-font: 'Orbitron', sans-serif;
+        --bg-image: linear-gradient(rgba(26, 15, 43, 0.95), rgba(26, 15, 43, 0.95)),
+                     linear-gradient(0deg, transparent 24%, var(--border-color) 25%, var(--border-color) 26%, transparent 27%, transparent 74%, var(--border-color) 75%, var(--border-color) 76%, transparent 77%, transparent),
+                     linear-gradient(90deg, transparent 24%, var(--border-color) 25%, var(--border-color) 26%, transparent 27%, transparent 74%, var(--border-color) 75%, var(--border-color) 76%, transparent 77%, transparent);
+        background-size: 100%, 50px 50px, 50px 50px;
+      }
+      .theme-cyberpunk h1, .theme-cyberpunk h3, .theme-cyberpunk .style-btn.selected, .theme-cyberpunk .btn-mono {
+        text-shadow: 0 0 8px var(--border-color), 0 0 4px var(--text-color);
+      }
+
+      /* --- Vintage Theme --- */
+      body.theme-vintage {
+        --bg-color: #f5eeda;
+        --text-color: #4a403a;
+        --border-color: #c8bcae;
+        --button-bg: #4a403a;
+        --button-text: #f5eeda;
+      }
+
+      /* --- Anime Theme --- */
+      body.theme-anime {
+        --bg-color: #e0f7fa;
+        --text-color: #37474f;
+        --border-color: #81d4fa;
+        --button-bg: #ff80ab;
+        --button-text: #ffffff;
+      }
+      
+      /* --- Pixel Art Theme --- */
+      body.theme-pixel-art {
+        --bg-color: #1a1a1a;
+        --text-color: #00ff00;
+        --border-color: #008000;
+        --button-bg: #00ff00;
+        --button-text: #1a1a1a;
+      }
+      .theme-pixel-art h1, .theme-pixel-art h3 {
+        text-shadow: 0 0 4px var(--text-color);
+      }
+      .theme-pixel-art {
+        image-rendering: pixelated;
+      }
+
+      /* --- Fantasy Theme --- */
+      body.theme-fantasy {
+        --bg-color: #fdf6e3;
+        --text-color: #5d4037;
+        --border-color: #8d6e63;
+        --button-bg: #c5a562;
+        --button-text: #fdf6e3;
+      }
+
+      /* --- Watercolor Theme --- */
+      body.theme-watercolor {
+        --bg-color: #f8f9fa;
+        --text-color: #6c757d;
+        --border-color: #a0c4ff;
+        --button-bg: #a0c4ff;
+        --button-text: #f8f9fa;
+      }
+
+      /* --- Doodle Theme --- */
+      body.theme-doodle {
+        --bg-color: #fffef9;
+        --text-color: #212529;
+        --border-color: #ced4da;
+        --button-bg: #212529;
+        --button-text: #fffef9;
+      }
+
+      /* --- Comic Theme --- */
+      body.theme-comic {
+        --bg-color: #fff8dc;
+        --text-color: #000000;
+        --border-color: #000000;
+        --button-bg: #e62e2e;
+        --button-text: #ffffff;
+        --header-font: 'Orbitron', sans-serif;
+        --bg-image: radial-gradient(circle, rgba(0,0,0,0.05) 1px, transparent 1px);
+        background-size: 4px 4px;
+      }
+
+      /* --- Steampunk Theme --- */
+      body.theme-steampunk {
+        --bg-color: #3e2723;
+        --text-color: #cd7f32;
+        --border-color: #a0522d;
+        --button-bg: #cd7f32;
+        --button-text: #3e2723;
+        --header-font: 'Orbitron', sans-serif;
+      }
+
+      /* --- Claymation Theme --- */
+      body.theme-claymation {
+        --bg-color: #d2b48c;
+        --text-color: #8b5e34;
+        --border-color: #a0522d;
+        --button-bg: #8b5e34;
+        --button-text: #d2b48c;
+      }
+
+      /* --- Abstract Theme --- */
+      body.theme-abstract {
+        --bg-color: #000000;
+        --text-color: #ffffff;
+        --border-color: #444444;
+        --button-bg: #e11d48;
+        --button-text: #ffffff;
+        --header-font: 'Orbitron', sans-serif;
+      }
+
+      /* --- Vector Art Theme --- */
+      body.theme-vector-art {
+          --bg-color: #ffffff;
+          --text-color: #000000;
+          --border-color: #e0e0e0;
+          --button-bg: #ffd600;
+          --button-text: #000000;
+          --header-font: 'Orbitron', sans-serif;
+      }
+
+      /* --- Stained Glass Theme --- */
+      body.theme-stained-glass {
+          --bg-color: #212121;
+          --text-color: #e1bee7;
+          --border-color: #7b1fa2;
+          --button-bg: #9c27b0;
+          --button-text: #ffffff;
+          --header-font: 'Orbitron', sans-serif;
+      }
+      .theme-stained-glass h1, .theme-stained-glass h3 {
+          text-shadow: 0 0 5px var(--border-color);
+      }
+
+      /* --- Blueprint Theme --- */
+      body.theme-blueprint {
+          --bg-color: #002b49;
+          --text-color: #ffffff;
+          --border-color: #4f94cd;
+          --button-bg: #ffffff;
+          --button-text: #002b49;
+          --body-font: 'Roboto Mono', monospace;
+          --bg-image: linear-gradient(rgba(0,43,73,0.9), rgba(0,43,73,0.9)),
+                      linear-gradient(0deg, transparent 24%, var(--border-color) 25%, var(--border-color) 26%, transparent 27%, transparent 74%, var(--border-color) 75%, var(--border-color) 76%, transparent 77%, transparent),
+                      linear-gradient(90deg, transparent 24%, var(--border-color) 25%, var(--border-color) 26%, transparent 27%, transparent 74%, var(--border-color) 75%, var(--border-color) 76%, transparent 77%, transparent);
+          background-size: 100%, 30px 30px, 30px 30px;
+      }
+      .theme-blueprint .upload-label,
+      .theme-blueprint .aspect-btn,
+      .theme-blueprint div[style*="border: 1px solid"] {
+          border-style: dashed !important;
+      }
+
+      /* --- Pop Art Theme --- */
+      body.theme-pop-art {
+          --bg-color: #fff500;
+          --text-color: #000000;
+          --border-color: #000000;
+          --button-bg: #ff007f;
+          --button-text: #ffffff;
+          --header-font: 'Orbitron', sans-serif;
+          --bg-image: radial-gradient(circle, rgba(0, 0, 0, 0.15) 1.5px, transparent 1.5px);
+          background-size: 6px 6px;
+      }
+      .theme-pop-art .btn-mono, .theme-pop-art .aspect-btn.selected {
+          border-width: 2px;
+          border-color: #000;
+      }
+      .theme-pop-art .style-btn.selected {
+          text-shadow: 2px 2px #00c2e0;
+      }
+
+      /* --- Origami Theme --- */
+      body.theme-origami {
+          --bg-color: #f7f7f7;
+          --text-color: #555;
+          --border-color: #ddd;
+          --button-bg: #ff7f50;
+          --button-text: #ffffff;
+      }
+
+      body {
+        background-color: var(--bg-color);
+        background-image: var(--bg-image);
+        color: var(--text-color);
+        font-family: var(--body-font);
+        font-size: 14px;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+        transition: background-color 0.4s ease, color 0.4s ease;
+      }
+
+      h1, h3 {
+        font-family: var(--header-font);
+      }
+
+      @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+      }
+
+      @keyframes slideInFromLeft {
+        from { opacity: 0; transform: translateX(-15px); }
+        to { opacity: 1; transform: translateX(0); }
+      }
+
+      @keyframes slideInFromRight {
+        from { opacity: 0; transform: translateX(15px); }
+        to { opacity: 1; transform: translateX(0); }
+      }
+
+      @keyframes pulse {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.7; }
+      }
+
+      .main-grid {
+        display: grid;
+        grid-template-columns: 320px 1fr;
+        gap: 2rem;
+        padding: 1rem;
+        height: calc(100vh - 60px);
+      }
+
+      .controls-panel {
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+        border-right: 1px solid var(--border-color);
+        padding-right: 2rem;
+        overflow-y: auto;
+        animation: slideInFromLeft 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+      }
+      
+      .display-area {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        animation: slideInFromRight 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+      }
+
+      .fieldset-legend {
+        color: #888;
+        text-align: center;
+        width: 100%;
+        margin-bottom: 0.75rem;
+        font-size: 0.75rem;
+        letter-spacing: 0.05em;
+      }
+      
+      .upload-label {
+        border: 1px solid var(--border-color);
+        padding: 0.75rem;
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.2s ease;
+      }
+      .upload-label:hover {
+        background-color: var(--text-color);
+        border-color: var(--text-color);
+        color: var(--bg-color);
+      }
+      
+      .style-list {
+        display: flex;
+        flex-direction: column;
+        gap: 0.25rem;
+      }
+
+      .style-btn {
+        background: none;
+        border: none;
+        color: var(--text-color);
+        cursor: pointer;
+        text-align: left;
+        padding: 4px 8px;
+        font-family: var(--body-font);
+        font-size: 14px;
+        transition: color 0.2s ease, transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), font-weight 0.2s ease-out;
+        transform-origin: left center;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+      .style-btn .style-marker {
+        width: 24px;
+        flex-shrink: 0;
+      }
+      .style-btn .style-icon {
+        width: 1em;
+        height: 1em;
+        flex-shrink: 0;
+        color: inherit;
+      }
+      .style-btn:hover:not(.selected) {
+        color: var(--button-bg);
+        transform: scale(1.05);
+      }
+      .style-btn.selected {
+        font-weight: 700;
+        transform: scale(1.1);
+        color: var(--button-bg);
+      }
+      
+      .btn-mono {
+        background-color: var(--button-bg);
+        color: var(--button-text);
+        border: 1px solid var(--button-bg);
+        padding: 0.75rem 1rem;
+        font-family: var(--header-font);
+        font-weight: 500;
+        text-transform: uppercase;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        width: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+      .btn-mono:hover:not(:disabled) {
+        filter: brightness(1.2);
+      }
+      .btn-mono:disabled {
+        filter: grayscale(1) brightness(1.5);
+        cursor: not-allowed;
+      }
+
+      .aspect-ratio-list {
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        gap: 0.5rem;
+      }
+      .aspect-btn {
+         background: none;
+         border: 1px solid var(--border-color);
+         padding: 0.5rem 0;
+         cursor: pointer;
+         transition: all 0.2s ease;
+         color: var(--text-color);
+      }
+      .aspect-btn.selected {
+        background-color: var(--button-bg);
+        color: var(--button-text);
+        border-color: var(--button-bg);
+      }
+      .aspect-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+
+      .fade-in {
+        animation: fadeIn 0.4s ease-in-out;
+      }
+
+      .loading-indicator {
+        animation: pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+      }
+
+      .error-message {
+        color: #c00;
+        margin-top: 0.75rem;
+        font-size: 0.75rem;
+        text-align: center;
+        animation: fadeIn 0.3s ease-out;
+      }
+</style>
+<link rel="stylesheet" href="/index.css">
+</head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/index.tsx"></script>
+  </body>
+</html>

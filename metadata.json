@@ -1,0 +1,5 @@
+{
+  "name": "AI Style Converter",
+  "description": "An application that uses AI to transform your images into various artistic styles, such as anime, cyberpunk, vintage, and bio-mechanical schematics.",
+  "requestFramePermissions": []
+}
